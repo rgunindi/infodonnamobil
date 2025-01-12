@@ -49,7 +49,8 @@ pub fn App() -> Element {
         }
     }
 }
-
+#[cfg(feature = "server")]
+use futures::TryStreamExt;
 /// Markdown içeriğini sunucuda bir dosyaya kaydeder.
 #[server(SaveMarkdown)]
 async fn get_markdown() -> Result<String, ServerFnError> {
@@ -68,12 +69,9 @@ async fn get_markdown() -> Result<String, ServerFnError> {
     let db = client.database("markdown_db");
     let collection = db.collection::<MarkdownEntry>("markdown_entries");
 
-    // Son kaydı bulmak için find_one kullanıyoruz
-    let result = collection
-    .find_one(mongodb::bson::doc! {})
-    .await
-        .map_err(|e| ServerFnError::new(format!("Failed to fetch from MongoDB: {e}")))?;
-
+    let filter=mongodb::bson::doc! {};
+    let mut result = collection.find(filter).sort(mongodb::bson::doc! { "_id": -1 }).limit(1).await?;
+    let result = result.try_next().await?;
     // Eğer kayıt varsa içeriğini, yoksa varsayılan değeri döndür
     Ok(result.map_or(DEFAULT_MARKDOWN.to_string(), |entry| entry.content))
 }
