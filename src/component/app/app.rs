@@ -1,5 +1,5 @@
 
-use crate::component::prelude::*;
+use crate::component::app::prelude::*;
 
 #[component]
 pub fn App() -> Element {
@@ -42,7 +42,7 @@ pub fn App() -> Element {
 
     rsx! {
         head {
-            style { "{include_str!(\"../../assets/style.css\")}" }
+            style { "{include_str!(\"../../../assets/style.css\")}" }
         }
         div { class: "container",
             div { class: "markdown-preview",
