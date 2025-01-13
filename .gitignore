@@ -48,5 +48,5 @@ pkg/
 .env.production
 .env
 
-.cargo
 /gen
+.cargo

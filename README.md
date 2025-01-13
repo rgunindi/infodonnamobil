@@ -1,17 +1,9 @@
-# Development
+# Dioxus
 
-Your new bare-bones project includes minimal organization with a single `main.rs` file and a few assets.
+## iOS
 
-### Serving Your App
+Must run Xcode on rosetta. Goto Application > Right Click Xcode > Get Info > Open in Rosetta.
 
-Run the following command in the root of your project to start developing with the default platform:
+If you are using M1, you will have to run `cargo build --target x86_64-apple-ios` instead of `cargo apple build` if you want to run in simulator.
 
-```bash
-dx serve --platform mobile
-```
-
-To run for a different platform, use the `--platform platform` flag. E.g.
-```bash
-dx serve --platform desktop
-```
-
+Otherwise, it's all `cargo apple run` when running in actual device.

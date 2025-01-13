@@ -1,0 +1,8 @@
+[app]
+name = "infodonnamobil"
+stylized-name = "Infodonnamobil"
+identifier = "com.example.infodonnamobil"
+template-pack = "dioxus"
+
+[apple]
+development-team = "YJCWS7M7PR"
