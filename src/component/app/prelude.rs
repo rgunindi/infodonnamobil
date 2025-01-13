@@ -1,7 +1,7 @@
 pub use dioxus::{logger::tracing::info, prelude::*};
 
 mod server {
-    include!("../../server/server.rs");
+    include!("../../../server/server.rs");
 }
 pub use server::{get_markdown,watch_markdown};
 

@@ -1,3 +1,1 @@
-mod App;
-mod prelude;
-pub use App::*;
+pub mod app;
