@@ -1,5 +1,5 @@
 FROM rust:1 AS chef
-RUN apt-get update && apt-get install -y libgtk-3-dev pkg-config && cargo install cargo-chef
+RUN apt-get update && apt-get install -y libgtk-3-dev pkg-config libsoup3.0-dev && cargo install cargo-chef
 WORKDIR /app
 
 FROM chef AS planner
