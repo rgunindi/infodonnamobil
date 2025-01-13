@@ -1,0 +1,196 @@
+.markdown-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.markdown-preview {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    line-height: 1.6;
+    color: #2c3e50;
+}
+
+/* Başlıklar */
+.markdown-preview h1 {
+    font-size: 2.2em;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #eaecef;
+}
+
+.markdown-preview h2 {
+    font-size: 1.8em;
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid #eaecef;
+}
+
+.markdown-preview h3 {
+    font-size: 1.5em;
+    margin: 1.5rem 0 0.8rem;
+}
+
+/* Kod blokları */
+.markdown-preview pre {
+    background-color: #f6f8fa;
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+.markdown-preview code {
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 0.9em;
+    padding: 0.2em 0.4em;
+    background-color: #f6f8fa;
+    border-radius: 3px;
+}
+
+/* Listeler */
+.markdown-preview ul, 
+.markdown-preview ol {
+    padding-left: 2rem;
+    margin: 1rem 0;
+}
+
+/* Linkler */
+.markdown-preview a {
+    color: #0366d6;
+    text-decoration: none;
+}
+
+.markdown-preview a:hover {
+    text-decoration: underline;
+}
+
+/* Tablolar */
+.markdown-preview table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+.markdown-preview th,
+.markdown-preview td {
+    border: 1px solid #dfe2e5;
+    padding: 0.6rem 1rem;
+}
+
+.markdown-preview th {
+    background-color: #f6f8fa;
+}
+
+/* Blockquotes */
+.markdown-preview blockquote {
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    color: #6a737d;
+    border-left: 4px solid #dfe2e5;
+}
+
+/* Responsive tasarım */
+@media (max-width: 768px) {
+    .markdown-container {
+        padding: 1rem;
+    }
+    
+    .markdown-preview h1 {
+        font-size: 1.8em;
+    }
+    
+    .markdown-preview h2 {
+        font-size: 1.5em;
+    }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #121212;  /* Sayfa arkaplanı */
+    }
+
+    .markdown-container {
+        background-color: #1e1e1e;  /* Container arkaplanı */
+        box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    
+    .markdown-preview {
+        color: #e4e4e4;  /* Ana metin rengi */
+    }
+    
+    .markdown-preview h1,
+    .markdown-preview h2,
+    .markdown-preview h3 {
+        color: #ffffff;  /* Başlık renkleri */
+        border-bottom-color: #333;
+    }
+    
+    .markdown-preview pre,
+    .markdown-preview code {
+        background-color: #2a2a2a;  /* Kod blokları */
+        color: #e4e4e4;
+    }
+    
+    .markdown-preview blockquote {
+        border-left-color: #404040;
+        color: #b0b0b0;
+        background-color: #252525;
+    }
+    
+    .markdown-preview img {
+        filter: brightness(0.9);  /* Resimleri daha az karart */
+        box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    }
+    
+    .markdown-preview a {
+        color: #66b3ff;
+    }
+} 
+
+/* Resimler */
+.markdown-preview img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5rem auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+    .markdown-preview img {
+        /* Koyu modda resimleri biraz karartır */
+        filter: brightness(0.8) contrast(1.2);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+} 
+
+/* Metin hizalama */
+.markdown-preview p {
+    text-align: justify;  /* Metni iki yana yasla */
+    hyphens: auto;       /* Uzun kelimeleri gerektiğinde böl */
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+}
+
+/* Başlıklar için özel hizalama */
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3 {
+    text-align: left;    /* Başlıklar sola yaslı kalsın */
+}
+
+/* Listeler için özel hizalama */
+.markdown-preview ul,
+.markdown-preview ol {
+    text-align: left;    /* Liste öğeleri sola yaslı kalsın */
+}
+
+/* Kod blokları için özel hizalama */
+.markdown-preview pre,
+.markdown-preview code {
+    text-align: left;    /* Kod blokları sola yaslı kalsın */
+} 

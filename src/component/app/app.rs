@@ -1,5 +1,6 @@
-
 use crate::component::app::prelude::*;
+
+use futures_util::stream::{FusedStream, StreamExt};
 
 #[component]
 pub fn App() -> Element {
@@ -16,40 +17,45 @@ pub fn App() -> Element {
             }
         });
     });
-
-    // 5 saniyede bir kontrol eden coroutine
-    use_coroutine(move |_rx: UnboundedReceiver<()>| {
+    // Kontrollü watch coroutine
+    use_coroutine(move |rx: UnboundedReceiver<()>| {
         to_owned![markdown_content];
         async move {
+            #[cfg(feature = "server")]
+            let mut interval = tokio::time::interval(Duration::from_secs(10));
+            
             loop {
+                #[cfg(feature = "server")]
+                interval.tick().await;  // 10 saniye bekle
+                
+                //#[cfg(feature = "server")]
+                if rx.is_terminated() {
+                    break;  // Component unmount edildiğinde döngüyü kır
+                }
+
                 match watch_markdown().await {
-                    Ok(content) => {
-                        if content != "No changes detected." {
-                            markdown_content.set(content);
-                            println!("Content updated!");
-                        }
+                    Ok(content) if content != "No changes detected." => {
+                        markdown_content.set(content);
+                        println!("Content updated!");
                     }
                     Err(e) => eprintln!("Watch error: {}", e),
+                    _ => {}  // No changes detected durumu
                 }
-                
-                #[cfg(feature = "server")]
-                tokio::time::sleep(Duration::from_secs(10)).await;
-
-                info!("Watching markdown changes...");
             }
         }
     });
 
-    rsx!{
+    rsx! {
         MarkdownPreview{content:markdown_content}
     }
 }
 
 #[component]
-fn MarkdownPreview(content:Signal<String>) -> Element {
+fn MarkdownPreview(content: Signal<String>) -> Element {
     rsx! {
         head {
-            style { "{include_str!(\"../../../assets/style.css\")}" }
+            // style { "{include_str!(\"../../../assets/style.css\")}" }
+            style { "{include_str!(\"./style.css\")}" }
         }
         div { class: "container",
             div { class: "markdown-preview",
