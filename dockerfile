@@ -1,21 +1,23 @@
 FROM rust:1 AS chef
-# RUN apt-get update && apt-get install -y libgtk-3-dev pkg-config libjavascriptcoregtk && cargo install cargo-chef
-# Gerekli bağımlılıkları yükle
+
+# Gerekli araçları yükle
 RUN apt-get update && apt-get install -y \
     software-properties-common \
+    gnupg2 \
+    curl \
     nano && \
     apt-get clean
 
-# Kaynak dosyalarını ekle ve güncelle
-RUN echo "deb http://archive.ubuntu.com/ubuntu jammy main restricted universe multiverse" >> /etc/apt/sources.list && \
-    echo "deb http://archive.ubuntu.com/ubuntu jammy-security main restricted universe multiverse" >> /etc/apt/sources.list && \
+# Eksik GPG anahtarını ekle
+RUN curl -fsSL https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x871920D1991BC93C | gpg --dearmor -o /usr/share/keyrings/ubuntu-archive-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://archive.ubuntu.com/ubuntu jammy main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "deb [signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://archive.ubuntu.com/ubuntu jammy-security main restricted universe multiverse" >> /etc/apt/sources.list && \
     apt-get update && \
     apt-get install -y libwebkit2gtk-4.0-dev pkg-config && \
     apt-get clean
 
 # Cargo Chef yükle
 RUN cargo install cargo-chef
-ENV PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
 WORKDIR /app
 
 FROM chef AS planner
