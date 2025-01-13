@@ -40,19 +40,25 @@ pub fn App() -> Element {
         }
     });
 
+    rsx!{
+        MarkdownPreview{content:markdown_content}
+    }
+}
+
+#[component]
+fn MarkdownPreview(content:Signal<String>) -> Element {
     rsx! {
         head {
             style { "{include_str!(\"../../../assets/style.css\")}" }
         }
         div { class: "container",
             div { class: "markdown-preview",
-                dangerous_inner_html: if markdown_content().is_empty() {
+                dangerous_inner_html: if content().is_empty() {
                     String::from("<p>Loading...</p>")
                 } else {
-                    markdown::to_html(&markdown_content())
+                    markdown::to_html(&content())
                 }
             }
         }
     }
 }
-
