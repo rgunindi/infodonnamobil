@@ -1,6 +1,6 @@
 use crate::component::app::prelude::*;
 
-use futures_util::stream::{FusedStream, StreamExt};
+use futures_util::stream::FusedStream;
 
 #[component]
 pub fn App() -> Element {
@@ -56,6 +56,7 @@ fn MarkdownPreview(content: Signal<String>) -> Element {
         head {
             // style { "{include_str!(\"../../../assets/style.css\")}" }
             style { "{include_str!(\"./style.css\")}" }
+            Icon{}
         }
         div { class: "container",
             div { class: "markdown-preview",
@@ -65,6 +66,17 @@ fn MarkdownPreview(content: Signal<String>) -> Element {
                     markdown::to_html(&content())
                 }
             }
+        }
+    }
+}
+const FAVICON: Asset = asset!("assets/favicon.ico"); 
+#[component]
+fn Icon() -> Element {
+    rsx!{
+        head{
+            document::Link { rel: "icon", href: FAVICON }
+            link { rel: "icon", href: "../../../assets/favicon-16x16.png", sizes: "16x16", type: "image/png" }
+            link { rel: "shortcut icon", href: "../../../assets/favicon.ico", type: "image/x-icon" }
         }
     }
 }
