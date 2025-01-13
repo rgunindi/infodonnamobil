@@ -4,9 +4,13 @@ mod component;
 
 use component::app::App;
 
-fn main() {
-    // Ana uygulama başlatılıyor
-    dioxus::launch(App);
+// fn main() {
+//     // Ana uygulama başlatılıyor
+//     // dioxus::launch(App);
+//     infodonnamobil::main();
+// }
 
+fn main() {
+    infodonnamobil::main();
 }
 

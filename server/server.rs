@@ -3,27 +3,25 @@ use dioxus::prelude::*;
 #[cfg(feature = "server")]
 use dotenv::dotenv;
 #[cfg(feature = "server")]
+use futures::{StreamExt, TryStreamExt};
+#[cfg(feature = "server")]
 use mongodb::{options::ClientOptions, Client};
 #[cfg(feature = "server")]
-use std::env;
-#[cfg(feature = "server")]
-use futures::{StreamExt,TryStreamExt};
-#[cfg(feature = "server")]
 use serde::{Deserialize, Serialize};
-
+#[cfg(feature = "server")]
+use std::env;
 
 #[cfg(feature = "server")]
-#[derive(Serialize, Deserialize,Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct MarkdownEntry {
     pub content: String,
 }
-
 
 /// Markdown içeriğini sunucuda bir dosyaya kaydeder.
 #[server(SaveMarkdown)]
 pub async fn get_markdown() -> Result<String, ServerFnError> {
     println!("Fetching markdown content..."); // Debug log
-    
+
     const DEFAULT_MARKDOWN: &str = "# Welcome\nThis is a default markdown content.";
 
     #[cfg(feature = "server")]
@@ -38,14 +36,18 @@ pub async fn get_markdown() -> Result<String, ServerFnError> {
     let db = client.database("markdown_db");
     let collection = db.collection::<MarkdownEntry>("markdown_entries");
 
-    let filter=mongodb::bson::doc! {};
-    let mut result = collection.find(filter).sort(mongodb::bson::doc! { "_id": -1 }).limit(1).await?;
+    let filter = mongodb::bson::doc! {};
+    let mut result = collection
+        .find(filter)
+        .sort(mongodb::bson::doc! { "_id": -1 })
+        .limit(1)
+        .await?;
     let result = result.try_next().await?;
     // Eğer kayıt varsa içeriğini, yoksa varsayılan değeri döndür
     Ok(result.map_or(DEFAULT_MARKDOWN.to_string(), |entry| entry.content))
 }
 
-#[server(watch_markdown)]
+#[server(WatchMarkdown)]
 pub async fn watch_markdown() -> Result<String, ServerFnError> {
     println!("Watching markdown changes..."); // Debug log
     let client_uri =
@@ -57,8 +59,9 @@ pub async fn watch_markdown() -> Result<String, ServerFnError> {
         .map_err(|e| ServerFnError::new(format!("Failed to create MongoDB client: {e}")))?;
     let db = client.database("markdown_db");
     let collection = db.collection::<MarkdownEntry>("markdown_entries");
-    
-    let mut change_stream = collection.watch()
+
+    let mut change_stream = collection
+        .watch()
         .await
         .map_err(|e| ServerFnError::new(format!("Failed to create change stream: {e}")))?;
 

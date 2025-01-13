@@ -22,3 +22,8 @@ script = []
 # Javascript code file
 # serve: [dev-server] only
 script = []
+
+[bundle]
+identifier="com.infodonna.com"
+publiser="donnefrivillig"
+icon = ["assets/favicon.ico"]
