@@ -20,7 +20,7 @@ ENV PATH="/.cargo/bin:${PATH}"
 RUN dx bundle --platform web
 
 FROM chef AS runtime
-COPY --from=builder /app/target/dx/infodonnaclient/release/web/ /usr/local/app
+COPY --from=builder /app/target/dx/infodonnamobil/release/web/ /usr/local/app
 
 ENV PORT=8080
 ENV IP=0.0.0.0
