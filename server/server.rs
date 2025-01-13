@@ -18,7 +18,7 @@ pub struct MarkdownEntry {
 }
 
 /// Markdown içeriğini sunucuda bir dosyaya kaydeder.
-#[server(SaveMarkdown)]
+#[server(endpoint = "get_markdown")]
 pub async fn get_markdown() -> Result<String, ServerFnError> {
     println!("Fetching markdown content..."); // Debug log
 
@@ -47,7 +47,7 @@ pub async fn get_markdown() -> Result<String, ServerFnError> {
     Ok(result.map_or(DEFAULT_MARKDOWN.to_string(), |entry| entry.content))
 }
 
-#[server(WatchMarkdown)]
+#[server(endpoint = "watch_markdown")]
 pub async fn watch_markdown() -> Result<String, ServerFnError> {
     println!("Watching markdown changes..."); // Debug log
     let client_uri =
