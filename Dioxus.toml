@@ -27,3 +27,6 @@ script = []
 identifier="com.infodonna.com"
 publiser="donnefrivillig"
 icon = ["assets/favicon.ico"]
+
+[backend]
+

@@ -39,7 +39,8 @@ pub extern "C" fn start_app() {
     #[cfg(target_os = "ios")]
     _start_app()
 }
-use dioxus::prelude::*;
+use dioxus::{logger::tracing::Instrument, prelude::*};
+
 pub fn main() {
     init_logging();
     // let m = || -> Element {
@@ -49,5 +50,7 @@ pub fn main() {
     //         }
     //     }
     // };
+
+    LaunchBuilder::new().launch(App);
     dioxus::launch(App);
 }

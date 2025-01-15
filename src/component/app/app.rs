@@ -1,6 +1,13 @@
+use std::time::Duration;
+
 use crate::component::app::prelude::*;
 
 use futures_util::stream::FusedStream;
+
+use gloo_timers::callback::{Interval, Timeout};
+// #[cfg(frontend)]
+use gloo_timers::future::TimeoutFuture;
+use log::info;
 
 #[component]
 pub fn App() -> Element {
@@ -10,6 +17,10 @@ pub fn App() -> Element {
     use_effect(move || {
         to_owned![markdown_content];
         spawn(async move {
+            // TimeoutFuture::new(10000).await;
+            // let int = Interval::new(10000, || info!("FROMINTERVAL"));
+            // int.forget();
+            // int.cancel();
             if let Ok(content) = get_markdown().await {
                 markdown_content.set(content);
             } else {
@@ -21,16 +32,17 @@ pub fn App() -> Element {
     use_coroutine(move |rx: UnboundedReceiver<()>| {
         to_owned![markdown_content];
         async move {
-            #[cfg(feature = "server")]
-            let mut interval = tokio::time::interval(Duration::from_secs(10));
-            
+            // #[cfg(feature = "server")]
+            // let mut interval = tokio::time::interval(Duration::from_secs(10));
+
             loop {
-                #[cfg(feature = "server")]
-                interval.tick().await;  // 10 saniye bekle
-                
+                TimeoutFuture::new(10000).await;
+                // #[cfg(feature = "server")]
+                // interval.tick().await; // 10 saniye bekle
+                info!("FROM useCoroutine");
                 //#[cfg(feature = "server")]
                 if rx.is_terminated() {
-                    break;  // Component unmount edildiğinde döngüyü kır
+                    break; // Component unmount edildiğinde döngüyü kır
                 }
 
                 match watch_markdown().await {
@@ -39,7 +51,7 @@ pub fn App() -> Element {
                         println!("Content updated!");
                     }
                     Err(e) => eprintln!("Watch error: {}", e),
-                    _ => {}  // No changes detected durumu
+                    _ => {} // No changes detected durumu
                 }
             }
         }
@@ -69,10 +81,10 @@ fn MarkdownPreview(content: Signal<String>) -> Element {
         }
     }
 }
-const FAVICON: Asset = asset!("assets/favicon.ico"); 
+const FAVICON: Asset = asset!("assets/favicon.ico");
 #[component]
 fn Icon() -> Element {
-    rsx!{
+    rsx! {
         head{
             document::Link { rel: "icon", href: FAVICON }
             link { rel: "icon", href: "../../../assets/favicon-16x16.png", sizes: "16x16", type: "image/png" }
