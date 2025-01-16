@@ -24,6 +24,8 @@ reqwest = { version = "0.12.12", default-features = false, features = [
     "http2",
     "macos-system-configuration",
 ] }
+http = "1.2.0"
+web-sys = "0.3.77"
 [features]
 server=["dioxus/server","dep:mongodb","dep:serde","dep:futures","dep:tokio","dep:axum"]
 default = []
