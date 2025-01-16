@@ -28,8 +28,7 @@ async fn main() {
             http::header::AUTHORIZATION,
             http::header::ACCEPT,
         ])
-        .allow_origin(Any)
-        .allow_credentials(true);
+        .allow_origin(Any);
     let address = fullstack_address_or_localhost();
 
     // Set up the axum router
