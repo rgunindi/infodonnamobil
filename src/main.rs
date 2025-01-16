@@ -2,35 +2,46 @@
 #![allow(non_camel_case_types)]
 mod component;
 use component::app::App;
+use dioxus::logger::tracing::info;
 use dioxus::prelude::*;
 use dioxus_cli_config::*;
-use tower_http::cors::{AllowHeaders, CorsLayer};
+use http::Method;
+use tower_http::cors::{AllowHeaders, Any, CorsLayer};
 
-use dioxus::logger::tracing::info;
-#[cfg(feature = "server")]
-#[tokio::main]
-async fn main() {
-    // Get the address the server should run on. If the CLI is running, the CLI proxies fullstack into the main address
-    // and we use the generated address the CLI gives us
-    // CORS katmanını oluşturun
+// #[cfg(feature = "server")]
+// #[tokio::main]
+// async fn main() {
+//     // Get the address the server should run on. If the CLI is running, the CLI proxies fullstack into the main address
+//     // and we use the generated address the CLI gives us
+//     // CORS katmanını oluşturun
 
-    let cors = CorsLayer::new().allow_headers(AllowHeaders::any());
-    let address = fullstack_address_or_localhost();
+//     let cors = CorsLayer::new()
+//         .allow_headers(AllowHeaders::any())
+//         .allow_methods([
+//             Method::GET,
+//             Method::POST,
+//             Method::PUT,
+//             Method::DELETE,
+//             Method::OPTIONS,
+//         ])
+//         .allow_origin(Any) // Tüm originlere izin ver
+//         .allow_credentials(true);
+//     let address = fullstack_address_or_localhost();
 
-    // Set up the axum router
-    let router = axum::Router::new()
-        .layer(cors)
-        // You can add a dioxus application to the router with the `serve_dioxus_application` method
-        // This will add a fallback route to the router that will serve your component and server functions
-        .serve_dioxus_application(ServeConfigBuilder::default(), App);
+//     // Set up the axum router
+//     let router = axum::Router::new()
+//         .layer(cors)
+//         // You can add a dioxus application to the router with the `serve_dioxus_application` method
+//         // This will add a fallback route to the router that will serve your component and server functions
+//         .serve_dioxus_application(ServeConfigBuilder::default(), App);
 
-    println!("Local axum server:{address}");
-    // Finally, we can launch the server
-    let router = router.into_make_service();
-    let listener = tokio::net::TcpListener::bind(address).await.unwrap();
-    axum::serve(listener, router).await.unwrap();
-}
-#[cfg(not(feature = "server"))]
+//     println!("Local axum server:{address}");
+//     // Finally, we can launch the server
+//     let router = router.into_make_service();
+//     let listener = tokio::net::TcpListener::bind(address).await.unwrap();
+//     axum::serve(listener, router).await.unwrap();
+// }
+// #[cfg(not(feature = "server"))]
 fn main() {
     let m = || -> Element {
         rsx! {
