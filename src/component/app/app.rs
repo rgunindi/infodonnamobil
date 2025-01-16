@@ -5,7 +5,7 @@ use crate::component::app::prelude::*;
 use futures_util::stream::FusedStream;
 
 use gloo_timers::callback::{Interval, Timeout};
-// #[cfg(frontend)]
+#[cfg(feature = "web")]
 use gloo_timers::future::TimeoutFuture;
 use log::info;
 
@@ -36,10 +36,12 @@ pub fn App() -> Element {
             // let mut interval = tokio::time::interval(Duration::from_secs(10));
 
             loop {
+                #[cfg(feature = "web")]
                 TimeoutFuture::new(10000).await;
                 // #[cfg(feature = "server")]
                 // interval.tick().await; // 10 saniye bekle
                 info!("FROM useCoroutine");
+                println!("FROM useCoroutine");
                 //#[cfg(feature = "server")]
                 if rx.is_terminated() {
                     break; // Component unmount edildiğinde döngüyü kır

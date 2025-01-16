@@ -54,6 +54,8 @@ tokio = { version = "1.30.0", features = ["full"], optional = true }
 axum = { version = "0.7.0", optional = true }
 gloo-timers = { version = "0.3.0", features = ["futures"] }
 dioxus-cli-config = { version = "*", optional = false, features = [] }
+tower-http = { version = "0.6.2", features = ["cors"] }
+features = "0.10.0"
 
 [features]
 server=["dioxus/server","dep:mongodb","dep:serde","dep:futures","dep:tokio","dep:axum"]
@@ -61,7 +63,7 @@ default = []
 web = ["dioxus/web"]
 desktop = ["dioxus/desktop"]
 # dioxus-cli-config = ["dep:dioxus-cli-config"]
-# mobile = ["dioxus/mobile"]
+mobile = ["dioxus/mobile"]
 
 
 [target.'cfg(target_os = "android")'.dependencies]
