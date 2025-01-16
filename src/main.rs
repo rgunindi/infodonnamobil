@@ -14,11 +14,7 @@ async fn main() {
     // CORS katmanını oluşturun
 
     let cors = CorsLayer::new().allow_headers(AllowHeaders::any());
-    let mut address = fullstack_address_or_localhost();
-
-    let n = std::net::IpAddr::V4(std::net::Ipv4Addr::new(127, 0, 0, 1));
-    let nn = std::net::SocketAddr::new(n, 8081);
-    // address = nn;
+    let address = fullstack_address_or_localhost();
 
     // Set up the axum router
     let router = axum::Router::new()
@@ -35,6 +31,29 @@ async fn main() {
 }
 #[cfg(not(feature = "server"))]
 fn main() {
+    let m = || -> Element {
+        rsx! {
+            div {
+                "Hello"
+            }
+        }
+    };
+    use dioxus::{
+        fullstack::prelude::server_fn::client::{get_server_url, set_server_url},
+        logger::tracing::info,
+    };
+    if get_server_url().is_empty() {
+        println!("IP ADRESI BOS!!");
+        let ip = "https://backoffice.koyeb.app";
+        let serverurl = format!(
+            "{ip}:{}",
+            std::env::var("PORT").unwrap_or_else(|_| "8080".to_string())
+        )
+        .leak();
+        set_server_url(ip);
+        info!(ip);
+        println!("SERVERIP:{ip}");
+    }
     dioxus::launch(App);
     // infodonnamobil::main();
 }
