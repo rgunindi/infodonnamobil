@@ -12,16 +12,16 @@ pub fn App() -> Element {
     let markdown_content = use_signal(String::new);
     info!("App component mounted");
     // Normal content loading effect
-    use_effect(move || {
-        to_owned![markdown_content];
-        spawn(async move {
-            if let Ok(content) = get_markdown().await {
-                markdown_content.set(content);
-            } else {
-                markdown_content.set("# Error\nFailed to load markdown.".to_string());
-            }
-        });
-    });
+    // use_effect(move || {
+    //     to_owned![markdown_content];
+    //     spawn(async move {
+    //         if let Ok(content) = get_markdown().await {
+    //             markdown_content.set(content);
+    //         } else {
+    //             markdown_content.set("# Error\nFailed to load markdown.".to_string());
+    //         }
+    //     });
+    // });
     // Kontrollü watch coroutine
     // use_coroutine(move |rx: UnboundedReceiver<()>| {
     //     to_owned![markdown_content];
@@ -68,6 +68,7 @@ fn get_markdownto(c: Signal<String>) -> Element {
         let client = reqwest::Client::new();
 
         let method = reqwest::Method::POST;
+        web_sys::console::log_1(&"İstek başlatılıyor...".into());
 
         match client
             .request(method, api_url)
