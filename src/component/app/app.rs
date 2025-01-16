@@ -1,13 +1,11 @@
-use std::time::Duration;
-
 use crate::component::app::prelude::*;
 
+use dioxus::logger::tracing::info;
 use futures_util::stream::FusedStream;
 
-use gloo_timers::callback::{Interval, Timeout};
 #[cfg(feature = "web")]
 use gloo_timers::future::TimeoutFuture;
-use log::info;
+use server_fn::request::browser::Request;
 
 #[component]
 pub fn App() -> Element {
@@ -17,10 +15,6 @@ pub fn App() -> Element {
     use_effect(move || {
         to_owned![markdown_content];
         spawn(async move {
-            // TimeoutFuture::new(10000).await;
-            // let int = Interval::new(10000, || info!("FROMINTERVAL"));
-            // int.forget();
-            // int.cancel();
             if let Ok(content) = get_markdown().await {
                 markdown_content.set(content);
             } else {
@@ -29,41 +23,78 @@ pub fn App() -> Element {
         });
     });
     // Kontrollü watch coroutine
-    use_coroutine(move |rx: UnboundedReceiver<()>| {
-        to_owned![markdown_content];
-        async move {
-            // #[cfg(feature = "server")]
-            // let mut interval = tokio::time::interval(Duration::from_secs(10));
+    // use_coroutine(move |rx: UnboundedReceiver<()>| {
+    //     to_owned![markdown_content];
+    //     async move {
+    //         #[cfg(feature = "server")]
+    //         let mut interval = tokio::time::interval(Duration::from_secs(10));
 
-            loop {
-                #[cfg(feature = "web")]
-                TimeoutFuture::new(10000).await;
-                // #[cfg(feature = "server")]
-                // interval.tick().await; // 10 saniye bekle
-                info!("FROM useCoroutine");
-                println!("FROM useCoroutine");
-                //#[cfg(feature = "server")]
-                if rx.is_terminated() {
-                    break; // Component unmount edildiğinde döngüyü kır
-                }
+    //         loop {
+    //             #[cfg(feature = "web")]
+    //             TimeoutFuture::new(10000).await;
+    //             #[cfg(feature = "server")]
+    //             interval.tick().await; // 10 saniye bekle
+    //             info!("FROM useCoroutine");
+    //             // println!("FROM useCoroutine");
 
-                match watch_markdown().await {
-                    Ok(content) if content != "No changes detected." => {
-                        markdown_content.set(content);
-                        println!("Content updated!");
-                    }
-                    Err(e) => eprintln!("Watch error: {}", e),
-                    _ => {} // No changes detected durumu
-                }
-            }
-        }
-    });
+    //             if rx.is_terminated() {
+    //                 break; // Component unmount edildiğinde döngüyü kır
+    //             }
+
+    //             match watch_markdown().await {
+    //                 Ok(content) if content != "No changes detected." => {
+    //                     let mut strtrim: String = content.to_string();
+    //                     strtrim = strtrim.trim_matches('\n').to_string();
+    //                     markdown_content.set(strtrim);
+    //                     println!("Content updated!");
+    //                 }
+    //                 Err(e) => eprintln!("Watch error: {}", e),
+    //                 _ => {} // No changes detected durumu
+    //             }
+    //         }
+    //     }
+    // });
 
     rsx! {
-        MarkdownPreview{content:markdown_content}
+        // MarkdownPreview{content:markdown_content}
+        get_markdownto{c:markdown_content}
     }
 }
+#[component]
+fn get_markdownto(c: Signal<String>) -> Element {
+    let t = move || async move {
+        to_owned![c];
+        let api_url = "https://backoffice.koyeb.app/api/get_markdown";
+        let client = reqwest::Client::new();
 
+        let method = reqwest::Method::POST;
+
+        match client
+            .request(method, api_url)
+            .fetch_mode_no_cors()
+            .send()
+            .await
+            .unwrap()
+            .text()
+            .await
+        {
+            Ok(content) => {
+                info!("Yanıt: {}", content);
+                c.set(content);
+            }
+            Err(e) => eprintln!("Hata oluştu: {}", e),
+        }
+    };
+    use_effect(move || {
+        // to_owned![c];
+        spawn(async move {
+            t().await;
+        });
+    });
+    rsx! {
+        MarkdownPreview { content:c }
+    }
+}
 #[component]
 fn MarkdownPreview(content: Signal<String>) -> Element {
     rsx! {

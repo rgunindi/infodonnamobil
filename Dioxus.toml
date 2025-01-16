@@ -29,4 +29,4 @@ publiser="donnefrivillig"
 icon = ["assets/favicon.ico"]
 
 [backend]
-
+proxy="https://backoffice.koyeb.app/api"

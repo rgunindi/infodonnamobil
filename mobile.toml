@@ -1,7 +1,7 @@
 [app]
 name = "infodonnamobil"
 stylized-name = "Infodonnamobil"
-identifier = "com.example.infodonnamobil"
+identifier = "com.donnafrivillig.infodonnamobil"
 template-pack = "dioxus"
 
 [apple]

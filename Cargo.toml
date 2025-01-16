@@ -4,45 +4,7 @@ version = "0.1.0"
 authors = ["Ramazan G. <codmyhesap@gmail.com>"]
 edition = "2018"
 
-[lib]
-crate-type = ["staticlib", "cdylib", "rlib"]
-
-[[bin]]
-name = "infodonnamobil-desktop"
-path = "gen/bin/desktop.rs"
-
-[package.metadata.cargo-android]
-app-activity-name = "com.example.infodonnamobil.MainActivity"
-app-dependencies = [
-    "androidx.webkit:webkit:1.6.1",
-    "androidx.appcompat:appcompat:1.6.1",
-    "com.google.android.material:material:1.8.0",
-]
-project-dependencies = [ "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21" ]
-app-plugins = [ "org.jetbrains.kotlin.android" ]
-app-permissions = [
-    "android.permission.INTERNET",
-    "android.permission.ACCESS_NETWORK_STATE"
-]
-app-theme-parent = "Theme.MaterialComponents.DayNight.DarkActionBar"
-vulkan-validation = false
-build-targets = ["aarch64-linux-android", "armv7-linux-androideabi"]
-
-
-
-
-[package.metadata.cargo-android.env-vars]
-WRY_ANDROID_PACKAGE = "com.example.infodonnamobil"
-WRY_ANDROID_LIBRARY = "infodonnamobil"
-WRY_ANDROID_KOTLIN_FILES_OUT_DIR = "<android-project-dir>/app/src/main/kotlin/com/example/infodonnamobil"
-
-[package.metadata.cargo-apple.ios]
-frameworks = [ "WebKit" ]
-
 [dependencies]
-log = "0.4"
-# wry = "0.37"
-# tao = "0.26"
 dioxus = { version = "*", features = ["fullstack","dioxus-cli-config"] }
 markdown = "0.3.0"
 mongodb = {version="3.1.0", optional = true }
@@ -56,7 +18,12 @@ gloo-timers = { version = "0.3.0", features = ["futures"] }
 dioxus-cli-config = { version = "*", optional = false, features = [] }
 tower-http = { version = "0.6.2", features = ["cors"] }
 features = "0.10.0"
-
+reqwest = { version = "0.12.12", default-features = false, features = [
+    "rustls-tls",
+    "charset",
+    "http2",
+    "macos-system-configuration",
+] }
 [features]
 server=["dioxus/server","dep:mongodb","dep:serde","dep:futures","dep:tokio","dep:axum"]
 default = []
@@ -64,18 +31,6 @@ web = ["dioxus/web"]
 desktop = ["dioxus/desktop"]
 # dioxus-cli-config = ["dep:dioxus-cli-config"]
 mobile = ["dioxus/mobile"]
-
-
-[target.'cfg(target_os = "android")'.dependencies]
-android_logger = "0.13"
-jni = "0.21.0"
-paste = "1.0"
-
-[target.'cfg(not(target_os = "android"))'.dependencies]
-env_logger = "0.9.0"
-
-[target.'cfg(target_os = "ios")'.dependencies]
-core-foundation = "0.10"
 
 [profile]
 

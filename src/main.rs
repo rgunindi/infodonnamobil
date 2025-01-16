@@ -6,6 +6,7 @@ use dioxus::prelude::*;
 use dioxus_cli_config::*;
 use tower_http::cors::{AllowHeaders, CorsLayer};
 
+use dioxus::logger::tracing::info;
 #[cfg(feature = "server")]
 #[tokio::main]
 async fn main() {
@@ -23,7 +24,7 @@ async fn main() {
         // This will add a fallback route to the router that will serve your component and server functions
         .serve_dioxus_application(ServeConfigBuilder::default(), App);
 
-    println!("ÄDDR:{address}");
+    println!("Local axum server:{address}");
     // Finally, we can launch the server
     let router = router.into_make_service();
     let listener = tokio::net::TcpListener::bind(address).await.unwrap();
@@ -42,18 +43,18 @@ fn main() {
         fullstack::prelude::server_fn::client::{get_server_url, set_server_url},
         logger::tracing::info,
     };
-    if get_server_url().is_empty() {
-        println!("IP ADRESI BOS!!");
-        let ip = "https://backoffice.koyeb.app";
-        let serverurl = format!(
-            "{ip}:{}",
-            std::env::var("PORT").unwrap_or_else(|_| "8080".to_string())
-        )
-        .leak();
-        set_server_url(ip);
-        info!(ip);
-        println!("SERVERIP:{ip}");
-    }
+    // if get_server_url().is_empty() {
+    println!("IP ADRESI BOS!!");
+    let ip = "https://backoffice.koyeb.app";
+    let _serverurl = format!(
+        "{ip}:{}",
+        std::env::var("PORT").unwrap_or_else(|_| "8080".to_string())
+    )
+    .leak();
+    set_server_url(ip);
+    info!("SERVERIP:{0}", get_server_url());
+    println!("SERVERIP:{0}", get_server_url());
+    // }
     dioxus::launch(App);
     // infodonnamobil::main();
 }

@@ -1,4 +1,4 @@
-pub use dioxus::{logger::tracing::info, prelude::*};
+pub use dioxus::prelude::*;
 
 mod server {
     include!("../../../server/server.rs");
