@@ -16,7 +16,6 @@ async fn main() {
     // CORS katmanını oluşturun
 
     let cors = CorsLayer::new()
-        .allow_headers(AllowHeaders::any())
         .allow_methods([
             Method::GET,
             Method::POST,
@@ -24,7 +23,12 @@ async fn main() {
             Method::DELETE,
             Method::OPTIONS,
         ])
-        .allow_origin(Any) // Tüm originlere izin ver
+        .allow_headers([
+            http::header::CONTENT_TYPE,
+            http::header::AUTHORIZATION,
+            http::header::ACCEPT,
+        ])
+        .allow_origin(Any)
         .allow_credentials(true);
     let address = fullstack_address_or_localhost();
 
