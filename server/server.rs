@@ -17,6 +17,12 @@ pub struct MarkdownEntry {
     pub content: String,
 }
 
+#[cfg(not(feature = "server"))]
+#[derive(serde::Deserialize, serde::Serialize, Debug)]
+pub struct MarkdownEntry {
+    pub content: String,
+}
+
 /// Markdown içeriğini sunucuda bir dosyaya kaydeder.
 #[server(endpoint = "get_markdown")]
 pub async fn get_markdown() -> Result<String, ServerFnError> {
@@ -77,10 +83,9 @@ pub async fn watch_markdown() -> Result<String, ServerFnError> {
     Ok("No changes detected.".to_string())
 }
 
-#[cfg(feature = "server")]
 #[server(endpoint = "raw_markdown")]
 pub async fn raw_markdown() -> Result<MarkdownEntry, ServerFnError> {
-    println!("Fetching raw markdown entry..."); 
+    println!("Fetching raw markdown entry...");
 
     dotenv().ok();
     let client_uri =
@@ -99,11 +104,11 @@ pub async fn raw_markdown() -> Result<MarkdownEntry, ServerFnError> {
         .sort(mongodb::bson::doc! { "_id": -1 })
         .limit(1)
         .await?;
-    
+
     match result.try_next().await? {
         Some(entry) => Ok(entry),
         None => Ok(MarkdownEntry {
             content: "# Welcome\nThis is a default markdown content.".to_string(),
-        })
+        }),
     }
 }

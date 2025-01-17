@@ -7,90 +7,110 @@ use futures_util::stream::FusedStream;
 use gloo_timers::future::TimeoutFuture;
 use server_fn::request::browser::Request;
 
+use dioxus_sdk::utils::timing::{use_debounce, use_interval};
+// use dioxus_sdk::utils;
+
+use std::time::Duration;
+
 #[component]
 pub fn App() -> Element {
     let markdown_content = use_signal(String::new);
     info!("App component mounted");
     // Normal content loading effect
-    // use_effect(move || {
-    //     to_owned![markdown_content];
-    //     spawn(async move {
-    //         if let Ok(content) = get_markdown().await {
-    //             markdown_content.set(content);
-    //         } else {
-    //             markdown_content.set("# Error\nFailed to load markdown.".to_string());
-    //         }
-    //     });
-    // });
+    use_effect(move || {
+        to_owned![markdown_content];
+        spawn(async move {
+            match raw_markdown().await {
+                Ok(entry) => {
+                    markdown_content.set(entry.content);
+                }
+                Err(_) => {
+                    markdown_content.set("# Error\nFailed to load markdown.".to_string());
+                }
+            }
+        });
+    });
     // Kontrollü watch coroutine
-    // use_coroutine(move |rx: UnboundedReceiver<()>| {
-    //     to_owned![markdown_content];
-    //     async move {
-    //         #[cfg(feature = "server")]
-    //         let mut interval = tokio::time::interval(Duration::from_secs(10));
+    use_coroutine(move |rx: UnboundedReceiver<()>| {
+        to_owned![markdown_content];
+        async move {
+            use_interval(Duration::from_secs(30), move || {
+                info!("FROM useCoroutine");
+                println!("FROM useCoroutine");
 
-    //         loop {
-    //             #[cfg(feature = "web")]
-    //             TimeoutFuture::new(10000).await;
-    //             #[cfg(feature = "server")]
-    //             interval.tick().await; // 10 saniye bekle
-    //             info!("FROM useCoroutine");
-    //             // println!("FROM useCoroutine");
-
-    //             if rx.is_terminated() {
-    //                 break; // Component unmount edildiğinde döngüyü kır
-    //             }
-
-    //             match watch_markdown().await {
-    //                 Ok(content) if content != "No changes detected." => {
-    //                     let mut strtrim: String = content.to_string();
-    //                     strtrim = strtrim.trim_matches('\n').to_string();
-    //                     markdown_content.set(strtrim);
-    //                     println!("Content updated!");
-    //                 }
-    //                 Err(e) => eprintln!("Watch error: {}", e),
-    //                 _ => {} // No changes detected durumu
-    //             }
-    //         }
-    //     }
-    // });
+                if rx.is_terminated() {
+                    return; // Component unmount edildiğinde döngüyü kır
+                }
+                spawn(async move {
+                    match watch_markdown().await {
+                        Ok(content) if content != "No changes detected." => {
+                            let mut strtrim: String = content.to_string();
+                            strtrim = strtrim.trim_matches('\n').to_string();
+                            markdown_content.set(strtrim);
+                            println!("Content updated!");
+                        }
+                        Err(e) => eprintln!("Watch error: {}", e),
+                        _ => {} // No changes detected durumu
+                    }
+                });
+            });
+        }
+    });
 
     rsx! {
-        // MarkdownPreview{content:markdown_content}
-        get_markdownto{c:markdown_content}
+        MarkdownPreview{content:markdown_content}
+        // get_markdownto{c:markdown_content}
     }
 }
+
 #[component]
 fn get_markdownto(c: Signal<String>) -> Element {
-    let t = move || async move {
+    use_future(move || async move {
         to_owned![c];
-        let api_url = "https://backoffice.koyeb.app/api/get_markdown";
+        let api_url = "https://backoffice.koyeb.app/api/raw_markdown";
         let client = reqwest::Client::new();
 
-        let method = reqwest::Method::POST;
-        web_sys::console::log_1(&"İstek başlatılıyor...".into());
-
         match client
-            .request(method, api_url)
-            .fetch_mode_no_cors()
+            .request(reqwest::Method::POST, api_url)
+            .header("Access-Control-Allow-Origin", "*")
+            .header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+            .header("Access-Control-Allow-Headers", "Content-Type")
             .send()
             .await
-            .unwrap()
-            .text()
-            .await
         {
-            Ok(content) => {
-                info!("Yanıt: {}", content);
-                c.set(content);
+            Ok(response) => {
+                info!("Response status: {}", response.status());
+                match response.text().await {
+                    Ok(text) => {
+                        info!("Raw response text: {}", text);
+                        if text.is_empty() {
+                            eprintln!("Empty response received");
+                            return;
+                        }
+                        // Manuel JSON parse
+                        match serde_json::from_str::<serde_json::Value>(&text) {
+                            Ok(json) => {
+                                info!("Parsed JSON: {:?}", json);
+                                if let Some(content) = json.get("content").and_then(|v| v.as_str())
+                                {
+                                    info!("Raw markdown content received");
+                                    c.set(content.to_string());
+                                } else {
+                                    eprintln!("JSON does not contain 'content' field");
+                                    info!("JSON structure: {:?}", json);
+                                }
+                            }
+                            Err(e) => {
+                                eprintln!("Failed to parse JSON: {}", e);
+                                info!("Failed text: {}", text);
+                            }
+                        }
+                    }
+                    Err(e) => eprintln!("Failed to get response text: {}", e),
+                }
             }
-            Err(e) => eprintln!("Hata oluştu: {}", e),
+            Err(e) => eprintln!("Error: {}", e),
         }
-    };
-    use_effect(move || {
-        // to_owned![c];
-        spawn(async move {
-            t().await;
-        });
     });
     rsx! {
         MarkdownPreview { content:c }

@@ -13,7 +13,6 @@ use tower_http::cors::{AllowHeaders, Any, CorsLayer};
 async fn main() {
     // Get the address the server should run on. If the CLI is running, the CLI proxies fullstack into the main address
     // and we use the generated address the CLI gives us
-    // CORS katmanını oluşturun
 
     let cors = CorsLayer::new()
         .allow_methods([
@@ -32,43 +31,33 @@ async fn main() {
     let address = fullstack_address_or_localhost();
 
     // Set up the axum router
-    let router = axum::Router::new()
-        .layer(cors)
-        // You can add a dioxus application to the router with the `serve_dioxus_application` method
-        // This will add a fallback route to the router that will serve your component and server functions
-        .serve_dioxus_application(ServeConfigBuilder::default(), App);
+    let router = axum::Router::new().layer(cors).register_server_functions();
+    // This will add a fallback route to the router that will serve your component and server functions
+    // .serve_dioxus_application(ServeConfigBuilder::default(), App);
 
     println!("Local axum server:{address}");
-    // Finally, we can launch the server
     let router = router.into_make_service();
     let listener = tokio::net::TcpListener::bind(address).await.unwrap();
     axum::serve(listener, router).await.unwrap();
 }
 #[cfg(not(feature = "server"))]
 fn main() {
-    let m = || -> Element {
-        rsx! {
-            div {
-                "Hello"
-            }
-        }
-    };
     use dioxus::{
         fullstack::prelude::server_fn::client::{get_server_url, set_server_url},
         logger::tracing::info,
     };
-    // if get_server_url().is_empty() {
-    println!("IP ADRESI BOS!!");
-    let ip = "https://backoffice.koyeb.app";
-    let _serverurl = format!(
-        "{ip}:{}",
-        std::env::var("PORT").unwrap_or_else(|_| "8080".to_string())
-    )
-    .leak();
-    set_server_url(ip);
-    info!("SERVERIP:{0}", get_server_url());
-    println!("SERVERIP:{0}", get_server_url());
-    // }
+    if get_server_url().is_empty() {
+        println!("IP ADRESI BOS!!");
+        let ip = "https://backoffice.koyeb.app";
+        let _serverurl = format!(
+            "{ip}:{}",
+            std::env::var("PORT").unwrap_or_else(|_| "8080".to_string())
+        )
+        .leak();
+        set_server_url(ip);
+        info!("SERVERIP:{0}", get_server_url());
+        println!("SERVERIP:{0}", get_server_url());
+    }
     dioxus::launch(App);
     // infodonnamobil::main();
 }
