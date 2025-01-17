@@ -76,3 +76,34 @@ pub async fn watch_markdown() -> Result<String, ServerFnError> {
 
     Ok("No changes detected.".to_string())
 }
+
+#[cfg(feature = "server")]
+#[server(endpoint = "raw_markdown")]
+pub async fn raw_markdown() -> Result<MarkdownEntry, ServerFnError> {
+    println!("Fetching raw markdown entry..."); 
+
+    dotenv().ok();
+    let client_uri =
+        env::var("MONGODB_URI").unwrap_or_else(|_| "mongodb://localhost:27017".to_string());
+    let client_options = ClientOptions::parse(client_uri)
+        .await
+        .map_err(|e| ServerFnError::new(format!("Failed to parse MongoDB URI: {e}")))?;
+    let client = Client::with_options(client_options)
+        .map_err(|e| ServerFnError::new(format!("Failed to create MongoDB client: {e}")))?;
+    let db = client.database("markdown_db");
+    let collection = db.collection::<MarkdownEntry>("markdown_entries");
+
+    let filter = mongodb::bson::doc! {};
+    let mut result = collection
+        .find(filter)
+        .sort(mongodb::bson::doc! { "_id": -1 })
+        .limit(1)
+        .await?;
+    
+    match result.try_next().await? {
+        Some(entry) => Ok(entry),
+        None => Ok(MarkdownEntry {
+            content: "# Welcome\nThis is a default markdown content.".to_string(),
+        })
+    }
+}
