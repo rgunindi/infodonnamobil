@@ -17,7 +17,7 @@ RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/ca
 RUN cargo binstall dioxus-cli --root /.cargo -y --force
 ENV PATH="/.cargo/bin:${PATH}"
 
-RUN dx bundle --platform web
+RUN dx bundle --platform server
 
 FROM chef AS runtime
 COPY --from=builder /app/target/dx/infodonnamobil/release/web/ /usr/local/app

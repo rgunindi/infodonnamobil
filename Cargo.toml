@@ -27,9 +27,8 @@ reqwest = { version = "0.12.12", default-features = false, features = [
     "json"
 ] }
 http = "1.2.0"
-web-sys = "0.3.77"
 dioxus-sdk = { version = "0.6.0", features = ["timing"] }
-
+dioxus-html = { version = "0.6.1", features = ["serialize"]}
 [features]
 server=["dioxus/server","dep:mongodb","dep:serde","dep:futures","dep:tokio","dep:axum"]
 default = ["dep:serde"]

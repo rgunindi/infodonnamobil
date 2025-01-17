@@ -28,16 +28,35 @@ async fn main() {
             http::header::ACCEPT,
         ])
         .allow_origin(Any);
-    let address = fullstack_address_or_localhost();
+    let mut address = fullstack_address_or_localhost();
 
     // Set up the axum router
     let router = axum::Router::new().layer(cors).register_server_functions();
     // This will add a fallback route to the router that will serve your component and server functions
     // .serve_dioxus_application(ServeConfigBuilder::default(), App);
 
-    println!("Local axum server:{address}");
+    // Try binding to the address, if fails try alternative ports
+    let listener = loop {
+        match tokio::net::TcpListener::bind(address).await {
+            Ok(listener) => {
+                println!("Server started successfully on {}", address);
+                break listener;
+            }
+            Err(e) => {
+                if e.kind() == std::io::ErrorKind::AddrInUse {
+                    // Try next port
+                    let new_port = address.port() + 1;
+                    address.set_port(new_port);
+                    println!("Port in use, trying port {}", new_port);
+                    continue;
+                }
+                panic!("Failed to bind to address: {}", e);
+            }
+        }
+    };
+
     let router = router.into_make_service();
-    let listener = tokio::net::TcpListener::bind(address).await.unwrap();
+    println!("Local axum server running on {}", address);
     axum::serve(listener, router).await.unwrap();
 }
 #[cfg(not(feature = "server"))]
