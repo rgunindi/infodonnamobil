@@ -14,6 +14,8 @@ async fn main() {
     // Get the address the server should run on. If the CLI is running, the CLI proxies fullstack into the main address
     // and we use the generated address the CLI gives us
 
+    use server_fn::client::set_server_url;
+
     let cors = CorsLayer::new()
         .allow_methods([
             Method::GET,
@@ -57,6 +59,11 @@ async fn main() {
 
     let router = router.into_make_service();
     println!("Local axum server running on {}", address);
+    let ip = "https://backoffice.koyeb.app";
+    let ip2 = "http://192.168.1.109:8080";
+    set_server_url(ip);
+    info!("SERVERIP:{0}", server_fn::client::get_server_url());
+    println!("SERVERIP:{0}", server_fn::client::get_server_url());
     axum::serve(listener, router).await.unwrap();
 }
 #[cfg(not(feature = "server"))]
@@ -74,9 +81,12 @@ fn main() {
         )
         .leak();
         set_server_url(ip);
+        // set_server_url("http://192.168.1.109:8080");
         info!("SERVERIP:{0}", get_server_url());
         println!("SERVERIP:{0}", get_server_url());
     }
+    info!("SERVERIP:{0}", get_server_url());
+    println!("SERVERIP:{0}", get_server_url());
     dioxus::launch(App);
     // infodonnamobil::main();
 }
