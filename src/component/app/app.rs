@@ -3,11 +3,7 @@ use crate::component::app::prelude::*;
 use dioxus::logger::tracing::info;
 use futures_util::stream::FusedStream;
 
-#[cfg(feature = "web")]
-use gloo_timers::future::TimeoutFuture;
-
-use dioxus_sdk::utils::timing::{use_debounce, use_interval};
-// use dioxus_sdk::utils;
+use dioxus_sdk::utils::timing::use_interval;
 
 use std::time::Duration;
 
@@ -22,33 +18,12 @@ pub fn App() -> Element {
         info!("this is android");
     }
 
-    // info!("this is android");
-    // println!("this is android");
-    let future = use_resource(move || async move {
-        // You can create as many eval instances as you want
-        let mut eval = document::eval(
-            r#"
-            // You can send messages from JavaScript to Rust with the dioxus.send function
-            dioxus.send("Hi from JS!");
-            // You can receive messages from Rust to JavaScript with the dioxus.recv function
-            let msg = await dioxus.recv();
-            alert(msg);
-            "#,
-        );
-        // You can send messages to JavaScript with the send method
-        eval.send("Hi from Rust!").unwrap();
-
-        // You can receive any message from JavaScript with the recv method
-        eval.recv::<String>().await.unwrap()
-    });
-
-    ///
     let markdown_content = use_signal(String::new);
     info!("App component mounted");
     use_coroutine(move |rx: UnboundedReceiver<()>| {
         to_owned![markdown_content];
         async move {
-            use_interval(Duration::from_secs(5), move || {
+            use_interval(Duration::from_secs(60), move || {
                 info!("FROM useCoroutine");
                 // println!("FROM useCoroutine");
 
@@ -71,16 +46,8 @@ pub fn App() -> Element {
         }
     });
 
-    // rsx! {
-    //     MarkdownPreview { content: markdown_content }
-    // }
-    match future.read_unchecked().as_ref() {
-        Some(v) => rsx! {
-            p { "{v}" }
-        },
-        _ => rsx! {
-            p { "hello" }
-        },
+    rsx! {
+        MarkdownPreview { content: markdown_content }
     }
 }
 
@@ -143,32 +110,11 @@ fn MarkdownPreview(content: Signal<String>) -> Element {
         head {
             // style { "{include_str!(\"../../../assets/style.css\")}" }
             style { "{include_str!(\"./style.css\")}" }
-            Icon {}
         }
         div { class: "container",
             div {
                 class: "markdown-preview",
                 dangerous_inner_html: if content().is_empty() { String::from("<p>Loading...</p>") } else { markdown::to_html(&content()) },
-            }
-        }
-    }
-}
-const FAVICON: Asset = asset!("assets/favicon.ico");
-#[component]
-fn Icon() -> Element {
-    rsx! {
-        head {
-            document::Link { rel: "icon", href: FAVICON }
-            link {
-                rel: "icon",
-                href: "../../../assets/favicon-16x16.png",
-                sizes: "16x16",
-                r#type: "image/png",
-            }
-            link {
-                rel: "shortcut icon",
-                href: "../../../assets/favicon.ico",
-                r#type: "image/x-icon",
             }
         }
     }
