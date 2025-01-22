@@ -2756,6 +2756,7 @@ dependencies = [
  "axum",
  "dioxus",
  "dioxus-cli-config",
+ "dioxus-fullstack",
  "dioxus-html",
  "dioxus-sdk",
  "dotenv",

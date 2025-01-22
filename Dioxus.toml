@@ -27,6 +27,6 @@ script = []
 identifier="com.infodonna.com"
 publiser="donnefrivillig"
 icon = ["assets/favicon.ico"]
-
-[backend]
-proxy="https://backoffice.koyeb.app/api"
+[[web.proxy]]
+backend="https://backoffice.koyeb.app/api"
+# 

@@ -8,11 +8,22 @@ use dioxus_cli_config::*;
 use http::Method;
 use tower_http::cors::{AllowHeaders, Any, CorsLayer};
 
+use std::panic;
+
+pub fn setup_panic_hook() {
+    panic::set_hook(Box::new(|info| {
+        // Panik detaylarını logla
+        eprintln!("Rust Panic: {:?}", info);
+    }));
+}
 #[cfg(feature = "server")]
 #[tokio::main]
 async fn main() {
+    setup_panic_hook();
     // Get the address the server should run on. If the CLI is running, the CLI proxies fullstack into the main address
     // and we use the generated address the CLI gives us
+
+    use server_fn::client::set_server_url;
 
     let cors = CorsLayer::new()
         .allow_methods([
@@ -57,10 +68,16 @@ async fn main() {
 
     let router = router.into_make_service();
     println!("Local axum server running on {}", address);
+    let ip = "https://backoffice.koyeb.app";
+    // let ip2 = "http://192.168.1.109:8080";
+    set_server_url(ip);
+    info!("SERVERIP:{0}", server_fn::client::get_server_url());
+    println!("SERVERIP:{0}", server_fn::client::get_server_url());
     axum::serve(listener, router).await.unwrap();
 }
 #[cfg(not(feature = "server"))]
 fn main() {
+    setup_panic_hook();
     use dioxus::{
         fullstack::prelude::server_fn::client::{get_server_url, set_server_url},
         logger::tracing::info,
@@ -74,9 +91,11 @@ fn main() {
         )
         .leak();
         set_server_url(ip);
+        // set_server_url("http://192.168.1.109:8080");
         info!("SERVERIP:{0}", get_server_url());
         println!("SERVERIP:{0}", get_server_url());
     }
+    info!("SERVERIP:{0}", get_server_url());
+    println!("SERVERIP:{0}", get_server_url());
     dioxus::launch(App);
-    // infodonnamobil::main();
 }
